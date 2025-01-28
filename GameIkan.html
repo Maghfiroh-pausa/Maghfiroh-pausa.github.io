@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Edukasi Matematika: Pancing Ikan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #e0f7fa;
+            text-align: center;
+        }
+
+        h1 {
+            color: #00796b;
+        }
+
+        #start-container {
+            margin: 20px auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #game-container {
+            display: none;
+            margin: 20px auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #pond {
+            position: relative;
+            height: 350px;
+            width: 100%;
+            background-color: #80deea;
+            border-radius: 15px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .fish-container {
+            position: absolute;
+            width: 60px;
+            cursor: pointer;
+            animation: moveFish 5s infinite alternate ease-in-out;
+        }
+
+        .fish-container img {
+            width: 100%;
+            transition: transform 0.3s;
+        }
+
+        .fish-container:hover img {
+            transform: scale(1.2);
+        }
+
+        .fish-container .number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        #question {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        #score {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #00796b;
+        }
+
+        #buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #00796b;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #004d40;
+        }
+
+        @keyframes moveFish {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(100%);
+            }
+        }
+
+        .level-select {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .level-select button {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Game Pancing Ikan Matematika: Fungsi dan Relasi</h1>
+
+    <!-- Start Screen -->
+    <div id="start-container">
+        <button class="btn" id="start-btn">Mulai Game</button>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container">
+        <div id="score">Skor: 0</div>
+        <div id="question"></div>
+        <div id="pond"></div>
+        <div class="level-select">
+            <button class="btn" id="easy-level">Mudah</button>
+            <button class="btn" id="medium-level">Sedang</button>
+            <button class="btn" id="hard-level">Sulit</button>
+        </div>
+    </div>
+
+    <audio id="correct-sound" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio>
+    <audio id="wrong-sound" src="https://www.fesliyanstudios.com/play-mp3/355" preload="auto"></audio>
+
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const startContainer = document.getElementById('start-container');
+        const gameContainer = document.getElementById('game-container');
+        const pond = document.getElementById('pond');
+        const questionDiv = document.getElementById('question');
+        const scoreDiv = document.getElementById('score');
+        const correctSound = document.getElementById('correct-sound');
+        const wrongSound = document.getElementById('wrong-sound');
+        let score = 0;
+        let currentAnswer = 0;
+        let difficulty = 'easy'; // Default difficulty
+
+        startBtn.addEventListener('click', function() {
+            startContainer.style.display = 'none';
+            gameContainer.style.display = 'block';
+        });
+
+        function updateScore(isCorrect) {
+            if (isCorrect) {
+                score += 10;
+            } else {
+                score -= 5;
+            }
+            scoreDiv.innerHTML = `Skor: ${score}`;
+        }
+
+        function generateQuestion() {
+            switch (difficulty) {
+                case 'easy':
+                    const easyQuestions = [
+                        {
+                            question: "Jika A = {bilangan prima kurang dari 5} dan B = {huruf vokal}, hitunglah banyaknya pemetaan yang mungkin dari A ke B.",
+                            answer: 25
+                        },
+                        {
+                            question: "Diketahui n[A] = 4 dan n[B] = 4. Hitunglah banyak korespondensi satu-satu yang mungkin dari A ke B.",
+                            answer: 24
+                        },
+                        {
+                            question: "Jika A = {1, 2} dan B = {a, b, c}, hitung banyak fungsi dari A ke B.",
+                            answer: 9
+                        },
+                        {
+                            question: "Jika n[A] = 3 dan n[B] = 2, hitung banyak fungsi dari A ke B.",
+                            answer: 8
+                        },
+                        {
+                            question: "Jika n[A] = 1 dan n[B] = 10, hitung banyak fungsi dari A ke B.",
+                            answer: 10
+                        },
+                        {
+                            question: "Himpunan P = [2,3,5] dan Q = [1,3,4,6,7,8,10]. Relasi dari P ke Q ditentukan dengan aturan 'faktor dari'. maka berapa banyak Rangenya?",
+                            answer: 3
+                        },
+                        {
+                            question: "Diketahui A = {2,3,5}; B = {4,5,6} dan relasi dari A ke B adalah relasi 'kurang dari'. maka angka berapa yang hanya memiliki tepat satu pasangan saja di daerah kodomain...",
+                            answer: 5
+                        },
+                        {
+                            question: "Jika A = {a, b} dan B = {1, 2, 3}, berapa banyak relasi yang mungkin dari A ke B?",
+                             answer: 9
+                        },
+                        {
+                            question: "Diketahui A = {1, 2} dan B = {3, 4, 5}, berapa banyak fungsi dari A ke B?",
+                            answer: 9
+                        },
+                        {
+                            question: "Jika A = {3, 4, 5} dan B = {6, 7}, berapa banyak relasi yang mungkin dari A ke B?",
+                            answer: 6
+                        }
+                    ];
+                    const easyQ = easyQuestions[Math.floor(Math.random() * easyQuestions.length)];
+                    questionDiv.innerHTML = easyQ.question;
+                    currentAnswer = easyQ.answer;
+                    break;
+
+                case 'medium':
+                    const mediumQuestions = [
+                        {
+                            question: "f(x) = 3x - 5 dengan x elemen {-3,-2,-1,0,1,2}. Maka daerah hasil fungsi f(-2) adalah....",
+                            answer: -11
+                        },
+                        {
+                            question: "f(x) = 2x + 3 dengan x = 4. Hitung nilai f(x).",
+                            answer: 11
+                        },
+                        {
+                            question: "Jika f(x) = x^2 - x + 2, hitung f(3).",
+                            answer: 8
+                        },
+                        {
+                            question: "f(x) = x^2 - 4x + 6, hitung f(2).",
+                            answer: 6
+                        },
+                        {
+                            question: "Jika f(x) = 5x - 2, hitung f(-1).",
+                            answer: -7
+                        },
+                        {
+                            question: "Diketahui f(x) = x^3 + x. Hitunglah f(2).",
+                            answer: 10
+                        },
+                        {
+                            question: "f(x) = 4x + 3, hitung nilai f(-3).",
+                            answer: -9
+                        },
+                        {
+                            question: "Jika f(x) = x^2 - 2x, hitung f(5).",
+                            answer: 15
+                        },
+                        {
+                            question: "f(x) = 2x^2 + 3x - 1, tentukan f(1).",
+                            answer: 4
+                        },
+                        {
+                            question: "Diketahui f(x) = 3x^2 - 5x + 2, tentukan f(-1).",
+                            answer: 10
+                        }
+                    ];
+                    const mediumQ = mediumQuestions[Math.floor(Math.random() * mediumQuestions.length)];
+                    questionDiv.innerHTML = mediumQ.question;
+                    currentAnswer = mediumQ.answer;
+                    break;
+
+                case 'hard':
+                    const hardQuestions = [
+                        {
+                            question: "Jika f(x) = 3x + 1 dan f(a) = 19 maka nilai a adalah...",
+                            answer: 6
+                        },
+                        {
+                            question: "Fungsi f(x) = ax + b, jika f(2) = -2 dan f(-3) = 13 maka nilai f(4) adalah...",
+                            answer: -8
+                        },
+                        {
+                            question: "Jika f(x) = 2x + 5 dan f(a) = 15, tentukan nilai a.",
+                            answer: 5
+                        },
+                        {
+                            question: "Diketahui f(x) = 4x - 1 dan f(a) = 19. Tentukan nilai a.",
+                            answer: 5
+                        },
+                        {
+                            question: "Jika f(x) = 3x - 4 dan f(a) = 8, tentukan nilai a.",
+                            answer: 4
+                        },
+                        {
+                            question: "Fungsi f(x) = 5x + 2, jika f(3) = 17, tentukan nilai x yang memenuhi f(x) = 27.",
+                            answer: 5
+                        },
+                        {
+                            question: "Jika f(x) = 2x + 3, tentukan nilai x jika f(x) = 11.",
+                            answer: 4
+                        },
+                        {
+                            question: "Diketahui f(x) = 2x + 7 dan f(a) = 13, tentukan nilai a.",
+                            answer: 3
+                        },
+                        {
+                            question: "Fungsi f(x) = ax + b, jika f(1) = 4 dan f(2) = 8 maka tentukan nilai f(5).",
+                            answer: 12
+                        },
+                        {
+                            question: "Jika f(x) = 3x + 1 dan f(2) = 7, tentukan nilai f(5).",
+                            answer: 16
+                        }
+                    ];
+                    const hardQ = hardQuestions[Math.floor(Math.random() * hardQuestions.length)];
+                    questionDiv.innerHTML = hardQ.question;
+                    currentAnswer = hardQ.answer;
+                    break;
+            }
+        }
+
+        function getRandomPosition() {
+            const x = Math.random() * (pond.offsetWidth - 60);
+            const y = Math.random() * (pond.offsetHeight - 60);
+            return { x, y };
+        }
+
+        function generateFishes() {
+            pond.innerHTML = ''; 
+            const correctPosition = Math.floor(Math.random() * 8);
+            for (let i = 0; i < 8; i++) {
+                const fishContainer = document.createElement('div');
+                fishContainer.className = 'fish-container';
+
+                const { x, y } = getRandomPosition();
+                fishContainer.style.left = `${x}px`;
+                fishContainer.style.top = `${y}px`;
+
+                const fish = document.createElement('img');
+                fish.src = 'https://img.icons8.com/emoji/96/000000/fish-emoji.png';
+
+                const fishNumber = document.createElement('div');
+                fishNumber.className = 'number';
+                fishNumber.innerText = i === correctPosition ? currentAnswer : Math.floor(Math.random() * 50) + 1;
+
+                fishContainer.dataset.number = fishNumber.innerText;
+
+                fishContainer.addEventListener('click', function() {
+                    if (fishContainer.dataset.number == currentAnswer) {
+                        correctSound.play();
+                        alert('Jawaban benar! Anda menangkap ikan yang tepat!');
+                        updateScore(true);
+                    } else {
+                        wrongSound.play();
+                        alert('Jawaban salah. Cobalah lagi.');
+                        updateScore(false);
+                    }
+                    generateQuestion();
+                    generateFishes();
+                });
+
+                fishContainer.appendChild(fish);
+                fishContainer.appendChild(fishNumber);
+                pond.appendChild(fishContainer);
+            }
+        }
+
+        document.getElementById('easy-level').addEventListener('click', () => {
+            difficulty = 'easy';
+            generateQuestion();
+            generateFishes();
+        });
+
+        document.getElementById('medium-level').addEventListener('click', () => {
+            difficulty = 'medium';
+            generateQuestion();
+            generateFishes();
+        });
+
+        document.getElementById('hard-level').addEventListener('click', () => {
+            difficulty = 'hard';
+            generateQuestion();
+            generateFishes();
+        });
+    </script>
+</body> 
+</html>
